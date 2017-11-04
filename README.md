@@ -16,4 +16,6 @@ This is a work in progress. Some non-breaking re-design is planned (use of varia
 Don't hesitate give comments, suggestions or ask for help compiling and running.
 
 
-Another approach: http://projects.coin-or.org/FlopC%2B%2B/browser/releases/1.1.2/FlopCpp/test/unitTest.cpp
+Similar in spirit but pre-C++11: http://projects.coin-or.org/FlopC%2B%2B/browser/releases/1.1.2/FlopCpp/test/unitTest.cpp
+
+This one uses more or less the same approach as the Gurobi and CPLEX C++ interfaces: http://projects.coin-or.org/Rehearse
