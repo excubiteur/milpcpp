@@ -66,7 +66,7 @@ namespace milpcpp
 		static void set_minimize() { _context->_minimize = true; }
 
 		static void set_objective(const expression& e) { _context->_objective = e; }
-		static void add_constraints(const std::vector<constraint> c) 
+		static void add_constraints(const std::vector<constraint>&c) 
 		{ 
 			_context->_constraints.insert(_context->_constraints.end(), c.begin(), c.end());
 		}
@@ -406,7 +406,7 @@ namespace milpcpp
 	};
 
 	template<typename F>
-	inline void subject_to(const char * name, F f)
+	inline void subject_to(const char * name, const F&f)
 	{
 		typedef utils::function_traits<F> traits;
 		subject_to_internal<F, traits::arity> func(f);
@@ -415,7 +415,7 @@ namespace milpcpp
 	}
 
 	template<>
-	inline void subject_to<constraint>(const char * name, constraint c)
+	inline void subject_to<constraint>(const char * name, const constraint&c)
 	{
 		model::add_constraints(std::vector<constraint>{c});
 	}

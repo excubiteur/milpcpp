@@ -19,7 +19,7 @@ namespace milpcpp
 		void solve();
 
 		template<typename T>
-		void get_values(const T& vars, std::function<void(typename T::index_type, typename T::value_type)> f) 
+		void get_values(const T& vars, const std::function<void(typename T::index_type, typename T::value_type)>&f) 
 		{
 			size_t size = vars.size();
 			size_t start_index = vars.start_index();
@@ -30,7 +30,7 @@ namespace milpcpp
 		}
 
 		template<typename T>
-		void get_values(const T& vars, std::function<void(typename T::index_type_1, typename T::index_type_2, typename T::value_type)> f)
+		void get_values(const T& vars, const std::function<void(typename T::index_type_1, typename T::index_type_2, typename T::value_type)>&f)
 		{
 			typedef typename T::index_type_1 T1;
 			typedef typename T::index_type_2 T2;

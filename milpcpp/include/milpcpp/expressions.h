@@ -120,7 +120,7 @@ namespace milpcpp
 		}
 	}
 
-	inline expression operator/(const expression e1, const expression&e2)
+	inline expression operator/(const expression&e1, const expression&e2)
 	{
 		if (std::holds_alternative<expressions::constant>(e1) && std::holds_alternative<expressions::constant>(e2))
 		{
