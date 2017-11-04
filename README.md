@@ -14,3 +14,6 @@ The repository does not include the glpk and lp_solve headers and libraries need
 This is a work in progress. Some non-breaking re-design is planned (use of variadic templates, function arguments need rvalue reference versions, etc..)
 
 Don't hesitate give comments, suggestions or ask for help compiling and running.
+
+
+Another approach: http://projects.coin-or.org/FlopC%2B%2B/browser/releases/1.1.2/FlopCpp/test/unitTest.cpp
