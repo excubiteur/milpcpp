@@ -48,6 +48,27 @@ namespace milpcpp
 			}
 		}
 
+		template<typename T>
+		void get_values(const T& vars, const std::function<void(typename T::index_type_1, typename T::index_type_2, typename T::index_type_3, typename T::value_type)>&f)
+		{
+			typedef typename T::index_type_1 T1;
+			typedef typename T::index_type_2 T2;
+			typedef typename T::index_type_3 T3;
+			size_t size1 = T1::size();
+			size_t size2 = T2::size();
+			size_t size3 = T3::size();
+			size_t start_index = vars.start_index();
+			for (int i = 0; i < size1; ++i)
+			{
+				for (int j = 0; j < size2; ++j)
+				{
+					for (int k = 0; k < size3; ++k)
+					{
+						f(T1(i), T2(j), T3(k), get_variable_value(start_index + i*size2*size3 + j*size3 + k));
+					}
+				}
+			}
+		}
 		double get_objective_value();
 	};
 }
