@@ -166,11 +166,114 @@ namespace milpcpp
 				term->second._coefficient._value += new_term._coefficient._value;
 			}
 		}
+		else if (std::holds_alternative<expressions::sum>(e))
+		{
+			const auto & other = std::get<expressions::sum>(e);
+			sum._constant_term._value += other._constant_term._value;
+			for (const auto&term : other._terms)
+			{
+				add(sum, term.second);
+			}
+		}
 		else
 		{
 			throw; //implement later
 		}
 
+	}
+
+	inline void subtract(expressions::sum& sum, const expression&e)
+	{
+		if (std::holds_alternative<expressions::constant>(e))
+		{
+			const auto & new_term = std::get<expressions::constant>(e);
+			sum._constant_term._value -= new_term._value;
+		}
+		else if (std::holds_alternative<expressions::term>(e))
+		{
+			const auto & new_term = std::get<expressions::term>(e);
+			auto&term = sum._terms.find(new_term._variable.absolute_index());
+			if (term == sum._terms.end())
+			{
+				auto negative = new_term;
+				negative._coefficient._value *= -1;
+				sum._terms[new_term._variable.absolute_index()] = negative;
+			}
+			else
+			{
+				term->second._coefficient._value -= new_term._coefficient._value;
+			}
+		}
+		else if (std::holds_alternative<expressions::variable>(e))
+		{
+			const auto & var = std::get<expressions::variable>(e);
+			expressions::term new_term{ { var },{ 1 } };
+			auto&term = sum._terms.find(new_term._variable.absolute_index());
+			if (term == sum._terms.end())
+			{
+				auto negative = new_term;
+				negative._coefficient._value *= -1;
+				sum._terms[new_term._variable.absolute_index()] = negative;
+			}
+			else
+			{
+				term->second._coefficient._value -= new_term._coefficient._value;
+			}
+		}
+		else if (std::holds_alternative<expressions::sum>(e))
+		{
+			const auto & other = std::get<expressions::sum>(e);
+			sum._constant_term._value -= other._constant_term._value;
+			for (const auto&term : other._terms)
+			{
+				subtract(sum, term.second);
+			}
+		}
+		else
+		{
+			throw; //implement later
+		}
+
+	}
+
+	inline expression operator+(const expression&e1, const expression&e2)
+	{
+		if (std::holds_alternative<expressions::sum>(e1))
+		{
+			expressions::sum result = std::get<expressions::sum>(e1);
+			add(result, e2);
+			return result;
+		}
+		else if (std::holds_alternative<expressions::sum>(e2))
+		{
+			expressions::sum result = std::get<expressions::sum>(e2);
+			add(result, e1);
+			return result;
+		}
+		else
+		{
+			throw; // to do 
+		}
+	}
+
+	inline expression operator-(const expression&e1, const expression&e2)
+	{
+		if (std::holds_alternative<expressions::sum>(e1))
+		{
+			expressions::sum result = std::get<expressions::sum>(e1);
+			subtract(result, e2);
+			return result;
+		}
+		else if (std::holds_alternative<expressions::sum>(e2))
+		{
+			expressions::sum result = std::get<expressions::sum>(e2);
+			subtract(result, e1);
+			return result;
+		}
+		else
+		{
+			throw; // to do 
+		}
 	}
 
 	struct constraint
@@ -201,6 +304,17 @@ namespace milpcpp
 			result._upper_bound = value;
 			result._lower_bounded = true;
 			result._lower_bound = value;
+			return result;
+		}
+
+		inline constraint equal(const expressions::sum&sum, const expression&e)
+		{
+			constraint result;
+			result._expression = sum - e;
+			result._upper_bounded = true;
+			result._upper_bound = 0;
+			result._lower_bounded = true;
+			result._lower_bound = 0;
 			return result;
 		}
 
@@ -275,6 +389,14 @@ namespace milpcpp
 		else if (std::holds_alternative<expressions::constant>(e1))
 		{
 			return constraints::equal(e2, std::get<expressions::constant>(e1)._value);
+		}
+		else if (std::holds_alternative<expressions::sum>(e1))
+		{
+			return constraints::equal(std::get<expressions::sum>(e1),e2);
+		}
+		else if (std::holds_alternative<expressions::sum>(e2))
+		{
+			return constraints::equal(std::get<expressions::sum>(e2), e1);
 		}
 		else
 		{
