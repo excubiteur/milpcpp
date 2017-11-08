@@ -63,12 +63,12 @@ would look like this in C++:
 
 	param<PROD>              rate(greater_than(0));
 	param<PROD>              inv0(greater_equal(0));
-	param<range<1, T>>       avail(greater_than(0));
-	param<PROD,range<1, T>>  market (greater_than(0));
+	param<range<1, T>>       avail(greater_equal(0));
+	param<PROD,range<1, T>>  market (greater_equal(0));
 
-	param<PROD>               prodcost(greater_than(0));
-	param<PROD>               invcost(greater_than(0));
-	param<PROD, range<1, T>>  revenue(greater_than(0));
+	param<PROD>               prodcost(greater_equal(0));
+	param<PROD>               invcost(greater_equal(0));
+	param<PROD, range<1, T>>  revenue(greater_equal(0));
 
 　
 	var<PROD, range<1, T>>    Make(greater_equal(0));
