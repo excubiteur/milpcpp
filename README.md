@@ -7,7 +7,7 @@ The approach used here is very different from the one used in the Gurobi or CPLE
 
 The design goal is to allow a model written in C++ to resemble as much as possible the equivalent AMPL model.
 
-In the examples folder of the repository you will find the C++ equivalents of the models from chapters 1 to 3 of "AMPL: A Modeling Language for Mathematical Programming" (http://ampl.com/resources/the-ampl-book/). The goal is to eventually translate all the examples in the book into C++.
+In the examples folder of the repository you will find the C++ equivalents of the models from chapters 1 to 4 of "AMPL: A Modeling Language for Mathematical Programming" (http://ampl.com/resources/the-ampl-book/). The goal is to eventually translate all the examples in the book into C++.
 
 The repository does not include the glpk and lp_solve headers and libraries needed to compile milpcpp and the examples but the cmake files will tell you where to put them.
 
