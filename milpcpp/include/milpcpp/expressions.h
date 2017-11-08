@@ -252,7 +252,10 @@ namespace milpcpp
 		}
 		else
 		{
-			throw; // to do 
+			expressions::sum result;
+			add(result, e1);
+			add(result, e2);
+			return result;
 		}
 	}
 
@@ -272,7 +275,10 @@ namespace milpcpp
 		}
 		else
 		{
-			throw; // to do 
+			expressions::sum result;
+			add(result, e1);
+			subtract(result, e2);
+			return result;
 		}
 	}
 

@@ -5,9 +5,22 @@
 
 namespace milpcpp
 {
+	template<bool _Strict = false, typename T1 = void, typename T2 = void>
+	struct bound : std::function<double(T1, T2)>
+	{
+		bound() = default;
 
-	template<bool _Strict = false, typename T = nullptr_t>
-	struct bound: std::function<double(T)>
+		bound(const std::function<expression(T1, T2)>&f) :
+			std::function<double(T1,T2)>([=](T1 t1, T2 t2) {
+			return std::get<expressions::constant>(f(t1, t2))._value;
+		}) {}
+
+		bound(const std::function<double(T1, T2)>&f) :
+			std::function<double(T1, T2)>(f) {}
+	};
+
+	template<bool _Strict, typename T>
+	struct bound<_Strict, T, void>: std::function<double(T)>
 	{
 		bound() = default;
 
@@ -20,18 +33,28 @@ namespace milpcpp
 			}) {}
 
 		bound(double value): 
-			std::function<double(T)>([](T) { return value; }) {}
+			std::function<double(T)>([=](T) { return value; }) {}
 	};
 
 	template<bool _Strict>
-	struct bound<_Strict, nullptr_t> : std::function<double()>
+	struct bound<_Strict, void, void> : std::function<double()>
 	{
 		bound(double value) :
 			std::function<double()>([=]() { return value; } ) {}
 	};
 
-	template<bool _Strict = false, typename T = nullptr_t>
-	struct lower_bound : bound<_Strict, T>
+	template<bool _Strict = false, typename T1 = void, typename T2 = void>
+	struct lower_bound : bound<_Strict, T1, T2>
+	{
+		lower_bound(double value) :
+			bound(value) {}
+		lower_bound(const lower_bound<_Strict >&f) :
+			bound([=](T1, T2) {return f();  }) {	}
+
+	};
+
+	template<bool _Strict, typename T>
+	struct lower_bound<_Strict, T> : bound<_Strict, T>
 	{
 		lower_bound() = default;
 
@@ -41,7 +64,7 @@ namespace milpcpp
 		lower_bound(const std::function<expression(T)>&f) :
 			bound(f) {}
 
-		lower_bound(const lower_bound<_Strict, nullptr_t >&f) :
+		lower_bound(const lower_bound<_Strict, void >&f) :
 			bound([=](T) {return f();  }) {}
 
 		lower_bound(double value) :
@@ -49,14 +72,24 @@ namespace milpcpp
 	};
 
 	template<bool _Strict>
-	struct lower_bound<_Strict,nullptr_t> : bound<_Strict,nullptr_t>
+	struct lower_bound<_Strict,void> : bound<_Strict,void>
 	{
 		lower_bound(double value) :
 			bound(value) {}
 	};
 
-	template<bool _Strict = false, typename T = nullptr_t>
-	struct upper_bound : bound<_Strict, T>
+	template<bool _Strict = false, typename T1 = void, typename T2 = void>
+	struct upper_bound : bound<_Strict, T1, T2>
+	{
+		upper_bound() = default;
+
+		upper_bound(const std::function<expression(T1, T2)>&f) :
+			bound(f) {}
+
+	};
+
+	template<bool _Strict, typename T>
+	struct upper_bound <_Strict, T>: bound<_Strict, T>
 	{
 		upper_bound() = default;
 
@@ -66,7 +99,7 @@ namespace milpcpp
 		upper_bound(const std::function<expression(T)>&f) :
 			bound(f) {}
 
-		upper_bound(const upper_bound<_Strict, nullptr_t >&f) :
+		upper_bound(const upper_bound<_Strict >&f) :
 			bound([=](T) {return f();  }) {}
 
 		upper_bound(double value) :
@@ -76,7 +109,7 @@ namespace milpcpp
 	};
 
 	template<bool _Strict>
-	struct upper_bound<_Strict, nullptr_t> : bound<_Strict, nullptr_t>
+	struct upper_bound<_Strict, void> : bound<_Strict, void>
 	{
 		upper_bound(double value) :
 			bound(value) {}
@@ -93,11 +126,28 @@ namespace milpcpp
 	}
 
 	template<typename T>
-	inline auto less_equal(T bound)
+	auto less_equal_internal(std::integral_constant<int, 2>,  T bound)
+	{
+		typedef utils::function_traits<T> traits;
+		typedef traits::arg<0>::type index_type1;
+		typedef traits::arg<1>::type index_type2;
+		return upper_bound<false, index_type1, index_type2 >(bound);
+	}
+
+	template<typename T>
+	auto less_equal_internal(std::integral_constant<int, 1>, T bound)
 	{
 		typedef utils::function_traits<T> traits;
 		typedef traits::arg<0>::type index_type;
 		return upper_bound<false, index_type >(bound);
+	}
+
+	template<typename T>
+	inline auto less_equal(T bound)
+	{
+		typedef utils::function_traits<T> traits;
+		constexpr int arity = traits::arity;
+		return less_equal_internal(std::integral_constant<int, arity>(), bound);
 	}
 
 	template<>
@@ -123,15 +173,20 @@ namespace milpcpp
 	template<>
 	inline auto greater_equal<double>(double bound)
 	{
-		return lower_bound<>(bound);
+		return lower_bound<false>(bound);
+	}
+
+	template<>
+	inline auto greater_equal<long>(long bound)
+	{
+		return lower_bound<false>(bound);
 	}
 
 	template<>
 	inline auto greater_equal<int>(int bound)
 	{
-		return lower_bound<>(bound);
+		return lower_bound<false>(bound);
 	}
-
 }
 
 #endif

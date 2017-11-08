@@ -57,6 +57,37 @@ namespace milpcpp
 		template<typename T>
 		index_set * index<T>::_index_set = nullptr;
 
+		template<typename X>
+		struct range_bound
+		{
+			static long _value;
+			static void set_value(long value) { _value = value; }
+			static long value() { return _value; }
+		};
+
+		template<typename X>
+		long range_bound<X>::_value = 0;
+	};
+
+	template<long _Lower, typename _End>
+	class range
+	{
+		size_t _offset = 0;
+	public:
+		range(){ }
+		range(size_t offset) { _offset = offset; }
+		template<long I, typename T> operator range<I, T>() const { return range<I, T>(_offset + (_Lower - I)); }
+		range<_Lower, _End> operator-(long rhs) const { return range<_Lower, _End>(_offset - rhs); }
+		long name() const { return _Lower + (long)_offset; }
+		static size_t size() { return _End::value() - _Lower + 1; }
+		size_t raw_index() const { return _offset;  }
+		static std::string name(size_t offset) { return std::to_string(_Lower + offset); }
+		static range<_Lower, _End> begin() { return range<_Lower, _End>(0); }
+		static range<_Lower, _End> end() { return range<_Lower, _End>(_End::_value - _Lower + 1); }
+		range<_Lower, _End>&operator++() { ++_offset; return *this; }
+		bool operator!=(const range<_Lower, _End>&other) const { return _offset != other._offset;  }
+		range<_Lower, _End> operator*() const { return *this;  }
+		static size_t index_of(long index_name) { return index_name - _Lower; }
 	};
 
 

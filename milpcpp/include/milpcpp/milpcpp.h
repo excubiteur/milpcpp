@@ -172,6 +172,16 @@ namespace milpcpp
 			}
 			_values[T1::index_of(index1)*T2::size() + T2::index_of(index2)] = value;
 		}
+
+		void add(const std::string&index1, long index2, double value)
+		{
+			if (_values.empty())
+			{
+				_values.resize(T1::size()*T2::size());
+			}
+			_values[T1::index_of(index1)*T2::size() + T2::index_of(index2)] = value;
+		}
+
 	};
 
 	template<typename T>
@@ -192,6 +202,15 @@ namespace milpcpp
 		}
 
 		void add(const std::string&index, double value) 
+		{
+			if (_values.empty())
+			{
+				_values.resize(T::size());
+			}
+			_values[T::index_of(index)] = value;
+		}
+
+		void add(long index, double value)
 		{
 			if (_values.empty())
 			{
@@ -276,14 +295,14 @@ namespace milpcpp
 		}
 
 
-		lower_bound<false, T1> _lower_bound;
-		upper_bound<false, T1> _upper_bound;
+		lower_bound<false, T1, T2> _lower_bound;
+		upper_bound<false, T1, T2> _upper_bound;
 
 		bool has_lower_bound() const override { return (bool)_lower_bound; }
 		bool has_upper_bound() const override { return (bool)_upper_bound; }
 
-		double get_lower_bound(size_t absolute_index) const override { return _lower_bound(T1( (absolute_index - _start_index)/T2::size() )); }
-		double get_upper_bound(size_t absolute_index) const override { return _upper_bound(T1( (absolute_index - _start_index)/T2::size() )); }
+		double get_lower_bound(size_t absolute_index) const override { return _lower_bound(T1((absolute_index - _start_index)/T2::size()), T2((absolute_index - _start_index) % T2::size())); }
+		double get_upper_bound(size_t absolute_index) const override { return _upper_bound(T1((absolute_index - _start_index)/T2::size()), T2((absolute_index - _start_index) % T2::size())); }
 
 	public:
 		const int arity = 2;
@@ -303,12 +322,12 @@ namespace milpcpp
 		var(const lower_bound<false, T>&lower, const upper_bound<false, T>&upper) { init(); }
 		*/
 
-		var(const lower_bound<false, T1>&lower, const upper_bound<false, T1>&upper) :
+		var(const lower_bound<false, T1, T2>&lower, const upper_bound<false, T1, T2>&upper) :
 			_lower_bound(lower), _upper_bound(upper) {
 			init();
 		}
 
-		var(const lower_bound<false, T1>&lower) :
+		var(const lower_bound<false, T1, T2>&lower) :
 			_lower_bound(lower) {
 			init();
 		}
@@ -354,7 +373,7 @@ namespace milpcpp
 
 		var(const lower_bound<false, T>&lower, const upper_bound<false, T>&upper) :
 			_lower_bound(lower), _upper_bound(upper) { init(); }
-		
+
 		expression operator()(T i) 
 		{ 
 			return expressions::variable{ _start_index,  i.raw_index() };
@@ -550,5 +569,7 @@ namespace milpcpp
 }
 
 #define MILPCPP_SET(X) struct X:public milpcpp::indexing::index<X> { X(size_t i):milpcpp::indexing::index<X>(i){} }; milpcpp::indexing::index_set __##X##internal##__; X::_index_set =  &__##X##internal##__
+
+#define MILPCPP_TYPED_PARAM(X) struct X:public milpcpp::indexing::range_bound<X> { };
 
 #endif
