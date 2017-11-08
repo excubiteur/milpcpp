@@ -111,7 +111,7 @@ would look like this in C++:
   
 
 ```
-In the examples folder of the repository you will find the C++ equivalents of the models from chapters 1 to 4 of "AMPL: A Modeling Language for Mathematical Programming" (http://ampl.com/resources/the-ampl-book/). The goal is to eventually translate all the examples in the book into C++.
+In the examples folder of the repository you will find the C++ equivalents of the models from chapters 1 to 4 of "AMPL: A Modeling Language for Mathematical Programming" (http://ampl.com/resources/the-ampl-book/). The goal is to eeventually translate all the examples in the book, http://users.iems.northwestern.edu/~4er/amplweb/EXAMPLES/PAPER1/index.html and http://users.iems.northwestern.edu/~4er/amplweb/NEW/LOOP2/index.html into C++
 
 The repository does not include the glpk and lp_solve headers and libraries needed to compile milpcpp and the examples but the cmake files will tell you where to put them.
 
