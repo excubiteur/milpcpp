@@ -70,9 +70,9 @@ void lp_solve::solve()
 				++current_index;
 			}
 			if(c._lower_bounded)
-				add_constraintex(_lp, size, &values[0], &indices[0], GE, c._lower_bound);
+				add_constraintex(_lp, size, &values[0], &indices[0], GE, lower);
 			if(c._upper_bounded)
-				add_constraintex(_lp, size, &values[0], &indices[0], LE, c._upper_bound);
+				add_constraintex(_lp, size, &values[0], &indices[0], LE, upper);
 
 		}
 		else if (std::holds_alternative<expressions::term>(e))

@@ -41,7 +41,7 @@ namespace milpcpp
 		};
 	};
 
-	typedef std::variant<expressions::constant, expressions::variable, expressions::term, expressions::sum> expression;
+	typedef std::variant<std::monostate, expressions::constant, expressions::variable, expressions::term, expressions::sum> expression;
 
 	inline expression multiply(const expressions::constant&e1, const expressions::constant&e2)
 	{
@@ -290,6 +290,8 @@ namespace milpcpp
 		bool _lower_bounded = false;
 		bool _upper_bounded = false;
 	};
+
+	inline constraint null_constraint() { return constraint(); }
 
 	namespace constraints
 	{

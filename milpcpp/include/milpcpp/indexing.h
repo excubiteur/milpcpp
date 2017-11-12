@@ -90,7 +90,24 @@ namespace milpcpp
 		static size_t index_of(long index_name) { return index_name - _Lower; }
 	};
 
+	template<typename T>
+	inline T first() { return T(0); }
 
+	template<typename T>
+	inline T prev(const T&i) { 
+		size_t index = i.raw_index();
+		if (index <= 0)
+		{
+			throw indexing::invalid_index("Index already at lower bound!");
+		}
+		return T(index -1); 
+	}
+
+	template<typename T>
+	inline long ord(const T&i) {
+		size_t index = i.raw_index();
+		return long(index + 1);
+	}
 }
 
 #endif
