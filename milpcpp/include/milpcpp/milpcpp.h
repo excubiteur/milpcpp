@@ -539,20 +539,6 @@ namespace milpcpp
 	};
 
 	template<typename F>
-	struct subject_to_internal<F, 0>
-	{
-		F _f;
-
-		subject_to_internal(const F&f) :_f(f) {}
-
-		std::vector<constraint> operator()()
-		{
-			std::vector<constraint> result{ _f() };
-			return result;
-		}
-	};
-
-	template<typename F>
 	inline void subject_to(const char * name, const F&f)
 	{
 		typedef utils::function_traits<F> traits;
