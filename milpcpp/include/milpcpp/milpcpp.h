@@ -488,62 +488,43 @@ namespace milpcpp
 		model::set_minimize();
 	}
 
-	template<typename F, int Arity>
-	class subject_to_internal{};
-
-	template<typename F>
-	struct subject_to_internal<F, 2>
+	template<typename T1, typename...Ts>
+	std::vector<constraint> get_constraints(const std::function<constraint(T1,Ts...)>& f)
 	{
-		F _f;
-
-		subject_to_internal(const F&f) :_f(f) {}
-
-		std::vector<constraint> operator()()
+		std::vector<constraint> result;
+		size_t size = T1::size();
+		for (size_t i = 0; i < size; ++i)
 		{
-			typedef utils::function_traits<F> traits;
-			typedef traits::arg<0>::type T1;
-			typedef traits::arg<1>::type T2;
+			auto f2 = [=](Ts...args) 
+			{ 
+				return f(T1(i), args...);
+			};
 
-			std::vector<constraint> result;
-			size_t size = T1::size();
-			size_t size2 = T2::size();
-			for (size_t i = 0; i < size; ++i)
-			{
-				for (size_t j = 0; j < size2; ++j)
-					result.push_back(_f(T1(i),T2(j)));
-			}
-			return result;
+			auto constraints = get_constraints<Ts...>(f2);
+			result.insert(result.end(), constraints.begin(), constraints.end());
 		}
-	};
+		return result;
+	}
 
-	template<typename F>
-	struct subject_to_internal<F, 1>
+	template<typename T>
+	std::vector<constraint> get_constraints(const std::function<constraint(T)>& f)
 	{
-		F _f;
-
-		subject_to_internal(const F&f) :_f(f) {}
-
-		std::vector<constraint> operator()()
+		std::vector<constraint> result;
+		size_t size = T::size();
+		for (size_t i = 0; i < size; ++i)
 		{
-			typedef utils::function_traits<F> traits;
-			typedef traits::arg<0>::type T;
-
-			std::vector<constraint> result;
-			size_t size = T::size();
-			for (size_t i = 0; i < size; ++i)
-			{
-				result.push_back(_f(T(i)));
-			}
-			return result;
+			result.push_back(f(T(i)));
 		}
-	};
+		return result;
+	}
 
-	template<typename F>
-	inline void subject_to(const char * name, const F&f)
+	template<typename T>
+	inline void subject_to(const char * name, const T&f)
 	{
-		typedef utils::function_traits<F> traits;
-		subject_to_internal<F, traits::arity> func(f);
-		std::vector<constraint> constraints = func();
+		typedef utils::function_traits<T> traits;
+		typedef traits::function_type F;
+		F func(f);
+		std::vector<constraint> constraints = get_constraints(func);
 		model::add_constraints(constraints);
 	}
 

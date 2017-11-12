@@ -20,6 +20,8 @@ namespace milpcpp
 
 			typedef ReturnType result_type;
 
+			typedef std::function<ReturnType(Args...)> function_type;
+
 			template <size_t i>
 			struct arg
 			{
