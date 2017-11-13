@@ -387,93 +387,43 @@ namespace milpcpp
 
 	};
 
-	template<typename F, int Arity>
-	struct sum_internal 
+	template<typename T1, typename...Ts>
+	expression get_sum(const std::function<expression(T1, Ts...)>& f)
 	{
-	};
-
-	template<typename F>
-	struct sum_internal<F, 3>
-	{
-		F _f;
-
-		sum_internal(const F&f) :_f(f) {}
-
-		expression operator()()
+		expressions::sum result;
+		size_t size = T1::size();
+		for (size_t i = 0; i < size; ++i)
 		{
-			typedef utils::function_traits<F> traits;
-			typedef traits::arg<0>::type T1;
-			typedef traits::arg<1>::type T2;
-			typedef traits::arg<2>::type T3;
-
-			expressions::sum result;
-			size_t size = T1::size();
-			size_t size2 = T2::size();
-			size_t size3 = T3::size();
-			for (size_t i = 0; i < size; ++i)
-				for (size_t j = 0; j < size2; ++j)
-					for (size_t k = 0; k < size3; ++k)
-						add(result, _f(T1(i), T2(j), T3(k)));
-			return result;
-		}
-
-	};
-
-	template<typename F>
-	struct sum_internal<F,2>
-	{
-		F _f;
-
-		sum_internal(const F&f) :_f(f) {}
-
-		expression operator()()
-		{
-			typedef utils::function_traits<F> traits;
-			typedef traits::arg<0>::type T1;
-			typedef traits::arg<1>::type T2;
-
-			expressions::sum result;
-			size_t size = T1::size();
-			size_t size2 = T2::size();
-			for (size_t i = 0; i < size; ++i)
+			auto f2 = [=](Ts...args)
 			{
-				for (size_t j = 0; j < size2; ++j)
-					add(result, _f(T1(i), T2(j)));
-			}
-			return result;
+				return f(T1(i), args...);
+			};
+
+			auto sum_expr = get_sum<Ts...>(f2);
+			add(result, sum_expr);
 		}
+		return result;
+	}
 
-	};
-
-
-	template<typename F>
-	struct sum_internal<F, 1>
+	template<typename T>
+	expression get_sum(const std::function<expression(T)>& f)
 	{
-		F _f;
-
-		sum_internal(const F&f) :_f(f) {}
-
-		expression operator()()
+		expressions::sum result;
+		size_t size = T::size();
+		for (size_t i = 0; i < size; ++i)
 		{
-			typedef utils::function_traits<F> traits;
-			typedef traits::arg<0>::type T;
-			expressions::sum result;
-			size_t size = T::size();
-			for (size_t i = 0; i < size; ++i)
-			{
-				add(result, _f(T(i)));
-			}
-			return result;
-		}		
-	};
+			add(result, f(T(i)));
+		}
+		return result;
+	}
 
-	template<typename F>
-	expression sum(F f)
+	template<typename T>
+	expression sum(T f)
 	{
-		typedef utils::function_traits<F> traits;
-		sum_internal<F, traits::arity> summer(f);
-		return summer();
-
+		typedef utils::function_traits<T> traits;
+		typedef traits::function_type F;
+		F func(f);
+		return get_sum(func);
 	}
 
 	inline void maximize(const char * name, const expression&e)
