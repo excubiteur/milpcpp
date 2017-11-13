@@ -1,115 +1,61 @@
 #ifndef __MILPCPP_BOUNDS_H__
-#define __MILPCPP_BOUNDSP_H__
+#define __MILPCPP_BOUNDS_H__
 
 #include<milpcpp/expressions.h>
 
 namespace milpcpp
 {
-	template<bool _Strict = false, typename T1 = void, typename T2 = void>
-	struct bound : std::function<double(T1, T2)>
+	template<bool _Strict = false, typename ... Ts>
+	struct bound : std::function<double(Ts...)>
 	{
 		bound() = default;
 
-		bound(const std::function<expression(T1, T2)>&f) :
-			std::function<double(T1,T2)>([=](T1 t1, T2 t2) {
-			return std::get<expressions::constant>(f(t1, t2))._value;
+		bound(const std::function<expression(Ts...)>&f) :
+			std::function<double(Ts...)>([=](Ts...args) {
+			return std::get<expressions::constant>(f(args...))._value;
 		}) {}
 
-		bound(const std::function<double(T1, T2)>&f) :
-			std::function<double(T1, T2)>(f) {}
-	};
+		bound(const std::function<double(Ts...)>&f) :
+			std::function<double(Ts...)>(f) {}
 
-	template<bool _Strict, typename T>
-	struct bound<_Strict, T, void>: std::function<double(T)>
-	{
-		bound() = default;
-
-		bound(const std::function<double(T)>&f):
-			std::function<double(T)>(f) {}
-
-		bound(const std::function<expression(T)>&f) :
-			std::function<double(T)>([=](T t) { 
-				return std::get<expressions::constant>(f(t))._value;
-			}) {}
-
-		bound(double value): 
-			std::function<double(T)>([=](T) { return value; }) {}
-	};
-
-	template<bool _Strict>
-	struct bound<_Strict, void, void> : std::function<double()>
-	{
 		bound(double value) :
-			std::function<double()>([=]() { return value; } ) {}
+			std::function<double(Ts...)>([=](Ts...) { return value; }) {}
 	};
 
-	template<bool _Strict = false, typename T1 = void, typename T2 = void>
-	struct lower_bound : bound<_Strict, T1, T2>
-	{
-		lower_bound(double value) :
-			bound(value) {}
-		lower_bound(const lower_bound<_Strict >&f) :
-			bound([=](T1, T2) {return f();  }) {	}
 
-	};
-
-	template<bool _Strict, typename T>
-	struct lower_bound<_Strict, T> : bound<_Strict, T>
+	template<bool _Strict = false, typename ... Ts>
+	struct lower_bound : bound<_Strict, Ts...>
 	{
 		lower_bound() = default;
 
-		lower_bound(const std::function<double(T)>&f) :
-			bound(f) {}
-
-		lower_bound(const std::function<expression(T)>&f) :
-			bound(f) {}
-
-		lower_bound(const lower_bound<_Strict, void >&f) :
-			bound([=](T) {return f();  }) {}
-
 		lower_bound(double value) :
 			bound(value) {}
+		lower_bound(const lower_bound<_Strict>&f) :
+			bound([=](Ts...) {return f();  }) {	}
+		lower_bound(const std::function<expression(Ts...)>&f) :
+			bound(f) {}
 	};
 
 	template<bool _Strict>
-	struct lower_bound<_Strict,void> : bound<_Strict,void>
+	struct lower_bound<_Strict> : bound<_Strict>
 	{
 		lower_bound(double value) :
 			bound(value) {}
 	};
 
-	template<bool _Strict = false, typename T1 = void, typename T2 = void>
-	struct upper_bound : bound<_Strict, T1, T2>
+
+	template<bool _Strict = false, typename ... Ts>
+	struct upper_bound : bound<_Strict, Ts...>
 	{
 		upper_bound() = default;
 
-		upper_bound(const std::function<expression(T1, T2)>&f) :
+		upper_bound(const std::function<expression(Ts...)>&f) :
 			bound(f) {}
-
-	};
-
-	template<bool _Strict, typename T>
-	struct upper_bound <_Strict, T>: bound<_Strict, T>
-	{
-		upper_bound() = default;
-
-		upper_bound(const std::function<double(T)>&f) :
-			bound(f) {}
-
-		upper_bound(const std::function<expression(T)>&f) :
-			bound(f) {}
-
-		upper_bound(const upper_bound<_Strict >&f) :
-			bound([=](T) {return f();  }) {}
-
-		upper_bound(double value) :
-			bound(value) {}
-
 
 	};
 
 	template<bool _Strict>
-	struct upper_bound<_Strict, void> : bound<_Strict, void>
+	struct upper_bound<_Strict> : bound<_Strict>
 	{
 		upper_bound(double value) :
 			bound(value) {}
@@ -125,29 +71,19 @@ namespace milpcpp
 		return upper_bound<true>(bound);
 	}
 
-	template<typename T>
-	auto less_equal_internal(std::integral_constant<int, 2>,  T bound)
+	template<typename...Ts>
+	auto less_equal_internal(const std::function<expression(Ts...)>& f)
 	{
-		typedef utils::function_traits<T> traits;
-		typedef traits::arg<0>::type index_type1;
-		typedef traits::arg<1>::type index_type2;
-		return upper_bound<false, index_type1, index_type2 >(bound);
+		return upper_bound<false, Ts... >(f);
 	}
 
 	template<typename T>
-	auto less_equal_internal(std::integral_constant<int, 1>, T bound)
+	inline auto less_equal(T f)
 	{
 		typedef utils::function_traits<T> traits;
-		typedef traits::arg<0>::type index_type;
-		return upper_bound<false, index_type >(bound);
-	}
-
-	template<typename T>
-	inline auto less_equal(T bound)
-	{
-		typedef utils::function_traits<T> traits;
-		constexpr int arity = traits::arity;
-		return less_equal_internal(std::integral_constant<int, arity>(), bound);
+		typedef traits::function_type F;
+		F func(f);
+		return less_equal_internal(func);
 	}
 
 	template<>
