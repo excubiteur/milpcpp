@@ -62,4 +62,4 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 
-*.cpp diff=cpp
+*.cpp crlf diff
