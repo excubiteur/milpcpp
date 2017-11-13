@@ -37,6 +37,18 @@ namespace milpcpp
 	}
 
 	template<typename T1, typename ... Ts>
+	size_t get_offset_by_lookup(const typename T1::lookup_type& n, const typename Ts::lookup_type&...args)
+	{
+		return T1::index_of(n)*compound_index<Ts...>::size() + get_offset_by_lookup<Ts...>(args...);
+	}
+
+	template<typename T>
+	size_t get_offset_by_lookup(const typename T::lookup_type&n)
+	{
+		return T::index_of(n);
+	}
+
+	template<typename T1, typename ... Ts>
 	double invoke(size_t index, const std::function<double(T1, Ts...)>&f)
 	{
 		size_t actual_index = index / compound_index<Ts...>::size();

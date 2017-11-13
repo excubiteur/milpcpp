@@ -41,6 +41,8 @@ namespace milpcpp
 		{
 			size_t _raw_index;
 		public:
+			typedef std::string lookup_type;
+
 			index(size_t raw_index) : _raw_index(raw_index) {}
 			size_t raw_index() const { return _raw_index; }
 			static index_set * _index_set;
@@ -74,6 +76,8 @@ namespace milpcpp
 	{
 		size_t _offset = 0;
 	public:
+		typedef long lookup_type;
+
 		range(){ }
 		range(size_t offset) { _offset = offset; }
 		template<long I, typename T> operator range<I, T>() const { return range<I, T>(_offset + (_Lower - I)); }
