@@ -66,12 +66,12 @@ namespace milpcpp
 		f(value,T(index));
 	}
 
-	template<typename T1 = void, typename T2 = void, typename T3 = void>
+	template<typename ... Ts>
 	class var : public variable_set
 	{
 		std::string name(size_t absolute_index) const override
 		{
-			return compound_index<T1, T2, T3>::name(absolute_index - _start_index);
+			return compound_index<Ts...>::name(absolute_index - _start_index);
 		}
 
 		bool has_lower_bound() const override { return (bool)_lower_bound; }
@@ -80,124 +80,35 @@ namespace milpcpp
 		double get_lower_bound(size_t absolute_index) const override { return invoke(absolute_index - _start_index, _lower_bound); }
 		double get_upper_bound(size_t absolute_index) const override { return invoke(absolute_index - _start_index, _upper_bound); }
 
-		lower_bound<false, T1,T2,T3> _lower_bound;
-		upper_bound<false, T1,T2,T3> _upper_bound;
+		lower_bound<false, Ts...> _lower_bound;
+		upper_bound<false, Ts...> _upper_bound;
 	public :
-		size_t size() const override { return compound_index<T1, T2, T3>::size(); }
+		var() { init();  }
 
-		typedef std::function<void(double, T1, T2, T3)> value_iterator_t;
+		size_t size() const override { return compound_index<Ts...>::size(); }
 
-		expression operator()(T1 i, T2 j, T3 k)
+		typedef std::function<void(double, Ts...)> value_iterator_t;
+
+		expression operator()(Ts...args)
 		{
-			return expressions::variable{ _start_index, get_offset(i,j,k) };
+			return expressions::variable{ _start_index, get_offset(args...) };
 
 		}
 
-		var(const lower_bound<false, T1,T2,T3>&lower, const upper_bound<false, T1,T2,T3>&upper) :
+		var(const lower_bound<false, Ts...>&lower, const upper_bound<false, Ts...>&upper) :
 			_lower_bound(lower), _upper_bound(upper) {
 			init();
 		}
 
-		var(const lower_bound<false, T1,T2,T3>&lower) :
+		var(const lower_bound<false, Ts...>&lower) :
 			_lower_bound(lower) {
 			init();
 		}
 
 	};
-
-	template<typename T1, typename T2>
-	class var<T1, T2,void> : public variable_set
-	{
-
-		std::string name(size_t absolute_index) const override
-		{
-			return T1::name((absolute_index - _start_index)/T2::size()) + "," + T2::name((absolute_index - _start_index) % T2::size());
-		}
-
-
-		lower_bound<false, T1, T2> _lower_bound;
-		upper_bound<false, T1, T2> _upper_bound;
-
-		bool has_lower_bound() const override { return (bool)_lower_bound; }
-		bool has_upper_bound() const override { return (bool)_upper_bound; }
-
-		double get_lower_bound(size_t absolute_index) const override { return _lower_bound(T1((absolute_index - _start_index)/T2::size()), T2((absolute_index - _start_index) % T2::size())); }
-		double get_upper_bound(size_t absolute_index) const override { return _upper_bound(T1((absolute_index - _start_index)/T2::size()), T2((absolute_index - _start_index) % T2::size())); }
-
-	public:
-		typedef std::function<void(double, T1, T2)> value_iterator_t;
-
-		size_t size() const override { return T1::size() * T2::size(); }
-
-		var() { init(); }
-
-
-		/*
-		var(const upper_bound<false, T>&upper) { init(); }
-		var(const lower_bound<false, T>&lower) { init(); }
-		var(const upper_bound<false, T>&upper, const lower_bound<false, T>&lower) { init(); }
-		var(const lower_bound<false, T>&lower, const upper_bound<false, T>&upper) { init(); }
-		*/
-
-		var(const lower_bound<false, T1, T2>&lower, const upper_bound<false, T1, T2>&upper) :
-			_lower_bound(lower), _upper_bound(upper) {
-			init();
-		}
-
-		var(const lower_bound<false, T1, T2>&lower) :
-			_lower_bound(lower) {
-			init();
-		}
-
-		expression operator()(T1 i, T2 j)
-		{
-			return expressions::variable{ _start_index,  i.raw_index()*T2::size() + j.raw_index() };
-		}
-	};
-
-	template<typename T>
-	class var<T, void, void>: public variable_set
-	{
-		std::string name(size_t absolute_index) const override
-		{
-			return T::name(absolute_index - _start_index);
-		}
-
-		lower_bound<false, T> _lower_bound;
-		upper_bound<false, T> _upper_bound;
-
-		bool has_lower_bound() const override { return (bool)_lower_bound; }
-		bool has_upper_bound() const override { return (bool)_upper_bound; }
-
-		double get_lower_bound(size_t absolute_index) const override { return _lower_bound(T(absolute_index - _start_index)); }
-		double get_upper_bound(size_t absolute_index) const override { return _upper_bound(T(absolute_index - _start_index)); }
-
-	public:
-		typedef std::function<void(double, T)> value_iterator_t;
-
-		size_t size() const override { return T::size(); }
-		var() { init(); }
-
-
-		/*
-		var(const upper_bound<false, T>&upper) { init(); }
-		var(const lower_bound<false, T>&lower) { init(); }
-		var(const upper_bound<false, T>&upper, const lower_bound<false, T>&lower) { init(); }
-		var(const lower_bound<false, T>&lower, const upper_bound<false, T>&upper) { init(); }
-		*/
-
-		var(const lower_bound<false, T>&lower, const upper_bound<false, T>&upper) :
-			_lower_bound(lower), _upper_bound(upper) { init(); }
-
-		expression operator()(T i) 
-		{ 
-			return expressions::variable{ _start_index,  i.raw_index() };
-		}
-	};
-
 
 	template<>
-	struct var<void>
+	struct var<>
 	{
 
 	};
