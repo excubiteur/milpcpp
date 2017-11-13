@@ -51,6 +51,21 @@ namespace milpcpp
 		return f(T(index));
 	}
 
+	template<typename T1, typename ... Ts>
+	void invoke(size_t index, double value, const std::function<void(double, T1, Ts...)>&f)
+	{
+		size_t actual_index = index / compound_index<Ts...>::size();
+		size_t next_component_index = index - (actual_index * compound_index<Ts...>::size());
+		auto f2 = [=](double v, Ts...args) { return f(v, T1(actual_index), args...);  };
+		invoke<Ts...>(next_component_index, value, f2);
+	}
+
+	template<typename T>
+	void invoke(size_t index, double value, const std::function<void(double,T)>&f)
+	{
+		f(value,T(index));
+	}
+
 	template<typename T1 = void, typename T2 = void, typename T3 = void>
 	class var : public variable_set
 	{
@@ -65,15 +80,12 @@ namespace milpcpp
 		double get_lower_bound(size_t absolute_index) const override { return invoke(absolute_index - _start_index, _lower_bound); }
 		double get_upper_bound(size_t absolute_index) const override { return invoke(absolute_index - _start_index, _upper_bound); }
 
-		size_t size() const override { return compound_index<T1,T2,T3>::size(); }
-
 		lower_bound<false, T1,T2,T3> _lower_bound;
 		upper_bound<false, T1,T2,T3> _upper_bound;
 	public :
-		typedef T1 index_type_1;
-		typedef T2 index_type_2;
-		typedef T3 index_type_3;
-		typedef double value_type;
+		size_t size() const override { return compound_index<T1, T2, T3>::size(); }
+
+		typedef std::function<void(double, T1, T2, T3)> value_iterator_t;
 
 		expression operator()(T1 i, T2 j, T3 k)
 		{
@@ -113,10 +125,7 @@ namespace milpcpp
 		double get_upper_bound(size_t absolute_index) const override { return _upper_bound(T1((absolute_index - _start_index)/T2::size()), T2((absolute_index - _start_index) % T2::size())); }
 
 	public:
-		const int arity = 2;
-		typedef T1 index_type_1;
-		typedef T2 index_type_2;
-		typedef double value_type;
+		typedef std::function<void(double, T1, T2)> value_iterator_t;
 
 		size_t size() const override { return T1::size() * T2::size(); }
 
@@ -164,9 +173,7 @@ namespace milpcpp
 		double get_upper_bound(size_t absolute_index) const override { return _upper_bound(T(absolute_index - _start_index)); }
 
 	public:
-		const int arity = 1;
-		typedef T index_type;
-		typedef double value_type;
+		typedef std::function<void(double, T)> value_iterator_t;
 
 		size_t size() const override { return T::size(); }
 		var() { init(); }
