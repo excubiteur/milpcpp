@@ -65,6 +65,7 @@ namespace milpcpp
 		{
 			result._terms[term.first] = expressions::term{ term.second._variable, e1._value * term.second._coefficient._value };
 		}
+		result._constant_term._value *= e1._value;
 		return result;
 	}
 
