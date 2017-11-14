@@ -95,8 +95,7 @@ namespace milpcpp
 		typedef utils::function_traits<T> traits;
 		typedef traits::function_type F;
 		F func(f);
-		std::vector<constraint> constraints = get_constraints(func);
-		model::add_constraints(constraints);
+		model::add_constraints(get_constraints(func));
 	}
 
 	template<>

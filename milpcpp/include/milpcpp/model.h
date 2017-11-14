@@ -68,9 +68,9 @@ namespace milpcpp
 		static void set_minimize() { _context->_minimize = true; }
 
 		static void set_objective(expression&& e) { _context->_objective = std::move(e); }
-		static void add_constraints(const std::vector<constraint>&c) 
+		static void add_constraints(std::vector<constraint>&&c) 
 		{ 
-			_context->_constraints.insert(_context->_constraints.end(), c.begin(), c.end());
+			std::move(c.begin(), c.end(), std::back_inserter(_context->_constraints));
 		}
 
 		std::string variable_name(size_t absolute_index) const
