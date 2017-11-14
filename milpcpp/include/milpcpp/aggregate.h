@@ -47,15 +47,15 @@ namespace milpcpp
 		return get_sum(func);
 	}
 
-	inline void maximize(const char * name, const expression&e)
+	inline void maximize(const char * name, expression&&e)
 	{
-		model::set_objective(e);
+		model::set_objective(std::move(e));
 		model::set_maximixe();
 	}
 
-	inline void minimize(const char * name, const expression&e)
+	inline void minimize(const char * name, expression&&e)
 	{
-		model::set_objective(e);
+		model::set_objective(std::move(e));
 		model::set_minimize();
 	}
 
