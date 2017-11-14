@@ -8,6 +8,7 @@ void multi();
 void steelP();
 void steelT();
 void steelT2();
+//void dietu();
 
 int main(int argc, char *argv[])
 {
@@ -21,5 +22,6 @@ int main(int argc, char *argv[])
 	steelP();
 	steelT();
 	steelT2();
+	//dietu();
 }
 
