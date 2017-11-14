@@ -72,7 +72,7 @@ namespace milpcpp
 			};
 
 			auto constraints = get_constraints<Ts...>(f2);
-			result.insert(result.end(), constraints.begin(), constraints.end());
+			std::move(constraints.begin(), constraints.end(), std::back_inserter(result));
 		}
 		return result;
 	}
