@@ -17,36 +17,90 @@ namespace milpcpp
 		void set_default(double d) { _default = d;  }
 	};
 
-	template<typename ... Ts>
+	template<typename T1 = void, typename ... Ts>
 	class param : public indexed_param
 	{
 	public:
-		param() = default;
-		param(const upper_bound<true, Ts...>&upper) {}
-		param(const lower_bound<true, Ts...>&lower) {}
-		param(const upper_bound<false, Ts...>&upper) {}
-		param(const lower_bound<false, Ts...>&lower) {}
+		typedef typename param<Ts...>::list_element_t list_element_t2;
+		typedef std::initializer_list<list_element_t2> list_element_t;
 
-		expression operator()(Ts...args)
+		static void initialize_values(std::vector<double>&values, std::initializer_list<list_element_t> list)
+		{
+			for (const auto&l : list)
+			{
+				param<Ts...>::initialize_values(values, l);
+			}
+		}
+
+		param(std::initializer_list<list_element_t> list)
+		{
+			initialize_values(_values, list);
+		}
+
+		param() = default;
+		param(const upper_bound<true,T1,  Ts...>&upper) {}
+		param(const lower_bound<true, T1, Ts...>&lower) {}
+		param(const upper_bound<false, T1, Ts...>&upper) {}
+		param(const lower_bound<false, T1, Ts...>&lower) {}
+
+		expression operator()(T1 arg1, Ts...args)
 		{
 			if (_values.empty())
 				return expressions::constant{ _default };
-			return expressions::constant{ _values[get_offset(args...)] };
+			return expressions::constant{ _values[get_offset(arg1, args...)] };
 		}
 
-		void add(const typename Ts::lookup_type&...args , double value)
+		void add(const typename T1::lookup_type&arg1, const typename Ts::lookup_type&...args , double value)
 		{
 			if (_values.empty())
 			{
-				_values.resize(compound_index<Ts...>::size());
+				_values.resize(compound_index<T1, Ts...>::size());
 			}
-			_values[get_offset_by_lookup<Ts...>(args...)] = value;
+			_values[get_offset_by_lookup<T1, Ts...>(arg1, args...)] = value;
 		}
 	};
 
+	template<typename T>
+	class param<T> : public indexed_param
+	{
+	public:
+		typedef double list_element_t;
+		
+		static void initialize_values(std::vector<double>&values, std::initializer_list<list_element_t> list)
+		{
+			values.insert(values.end(), list.begin(), list.end());
+		}
+
+		param(std::initializer_list<list_element_t> list)
+		{
+			initialize_values(_values, list);
+		}
+
+		param() = default;
+		param(const upper_bound<true, T>&upper) {}
+		param(const lower_bound<true, T>&lower) {}
+		param(const upper_bound<false, T>&upper) {}
+		param(const lower_bound<false, T>&lower) {}
+
+		expression operator()(T arg)
+		{
+			if (_values.empty())
+				return expressions::constant{ _default };
+			return expressions::constant{ _values[get_offset(arg)] };
+		}
+
+		void add(const typename T::lookup_type&arg, double value)
+		{
+			if (_values.empty())
+			{
+				_values.resize(compound_index<T>::size());
+			}
+			_values[get_offset_by_lookup<T>(arg)] = value;
+		}
+	};
 
 	template<>
-	struct param<>
+	struct param<void>
 	{		
 		double _value;
 	public:

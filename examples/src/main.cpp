@@ -9,6 +9,7 @@ void steelP();
 void steelT();
 void steelT2();
 //void dietu();
+void steelT2initlist();
 
 int main(int argc, char *argv[])
 {
@@ -23,5 +24,6 @@ int main(int argc, char *argv[])
 	steelT();
 	steelT2();
 	//dietu();
+	steelT2initlist();
 }
 

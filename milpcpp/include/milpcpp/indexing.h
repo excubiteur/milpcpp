@@ -20,6 +20,11 @@ namespace milpcpp
 			std::vector<std::string> _elements;
 			std::map<std::string, size_t> _lookup;
 		public:
+			index_set() = default;
+
+			index_set(std::initializer_list<std::string> list) :
+				_elements(list) {}
+
 			void add(const std::string&name)
 			{
 				_lookup[name] = _elements.size();
