@@ -2,6 +2,8 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include<cassert>
 #include<iostream>
 
@@ -94,26 +96,22 @@ void steelT2(
 	for (const auto& w : WEEKS_data)
 		WEEKS::add(w);
 
-	int data_index = 0;
-	for (const auto& p : PROD_data)
+	for (const auto&[data_index, p] : utils::Enumerate(PROD_data))
 	{
 		rate.add(p, rate_data[data_index]);
 		inv0.add(p, inv0_data[data_index]);
 		prodcost.add(p, prodcost_data[data_index]);
 		invcost.add(p, invcost_data[data_index]);
-		int data_index2 = 0;
-		for (const auto&w : WEEKS_data)
+		for (const auto&[data_index2,w] : utils::Enumerate(WEEKS_data))
 		{
 			market.add(p, w, market_data[data_index][data_index2]);
-			revenue.add(p, w, revenue_data[data_index][data_index2++]);
+			revenue.add(p, w, revenue_data[data_index][data_index2]);
 		}
-		++data_index;
 	}
 
-	data_index = 0;
-	for (const auto&w : WEEKS_data)
+	for (const auto&[data_index, w] : utils::Enumerate(WEEKS_data))
 	{
-		avail.add(w, avail_data[data_index++]);
+		avail.add(w, avail_data[data_index]);
 	}
 
 

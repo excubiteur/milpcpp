@@ -2,6 +2,8 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include<cassert>
 #include<iostream>
 
@@ -81,44 +83,32 @@ void multi(
 	for (const auto& p : PROD_data)
 		PROD::add(p);
 
-	int data_index = 0;
-	for (const auto& o : ORIG_data)
+	for (const auto&[data_index, o] : utils::Enumerate(ORIG_data))
 	{
-		int data_index2 = 0;
-		for (const auto& p : PROD_data)
+		for (const auto&[data_index2, p] : utils::Enumerate(PROD_data) )
 		{
-			supply.add(o, p, supply_data[data_index2++][data_index]);
+			supply.add(o, p, supply_data[data_index2][data_index]);
 		}
-		++data_index;
 	}
 
-	data_index = 0;
-	for (const auto& d : DEST_data)
+	for (const auto&[data_index,  d] : utils::Enumerate(DEST_data) )
 	{
-		int data_index2 = 0;
-		for (const auto& p : PROD_data)
+		for (const auto&[data_index2, p] : utils::Enumerate(PROD_data) )
 		{
-			demand.add(d, p, demand_data[data_index2++][data_index]);
+			demand.add(d, p, demand_data[data_index2][data_index]);
 		}
-		++data_index;
 	}
 
-	data_index = 0;
-	for (const auto& o : ORIG_data)
+	for (const auto& [data_index,o] : utils::Enumerate(ORIG_data))
 	{
-		int data_index2 = 0;
-		for (const auto& d : DEST_data)
+		for (const auto&[data_index2, d] : utils::Enumerate(DEST_data))
 		{
-			int data_index3 = 0;
-			for (const auto& p : PROD_data)
+			for (const auto&[data_index3, p] : utils::Enumerate(PROD_data))
 			{
 				double value = cost_data[data_index3][data_index][data_index2];
 				cost.add(o, d, p, value);
-				++data_index3;
 			}
-			++data_index2;
 		}
-		++data_index;
 	}
 
 	limit.set_default(limit_data);

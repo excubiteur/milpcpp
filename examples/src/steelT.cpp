@@ -2,6 +2,8 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include<cassert>
 #include<iostream>
 
@@ -94,8 +96,7 @@ void steelT(
 
 	T::set_value(T_data);
 
-	int data_index = 0;
-	for (const auto& p : PROD_data)
+	for (const auto&[data_index, p] : utils::Enumerate(PROD_data))
 	{
 		rate.add(p, rate_data[data_index]);
 		inv0.add(p, inv0_data[data_index]);
@@ -106,7 +107,6 @@ void steelT(
 			market.add(p, i.name(), market_data[data_index][i.raw_index()]);
 			revenue.add(p, i.name(), revenue_data[data_index][i.raw_index()]);
 		}
-		++data_index;
 	}
 
 	for (const auto&i : range<1, T>())

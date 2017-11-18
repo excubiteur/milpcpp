@@ -2,6 +2,8 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include<cassert>
 #include<iostream>
 
@@ -74,32 +76,25 @@ void diet(
 	for (const auto& f :FOOD_data)
 		FOOD::add(f);
 
-	int data_index = 0;
-	for (const auto& n : NUTR_data)
+	for (const auto& [data_index, n] : utils::Enumerate(NUTR_data) )
 	{
 		n_min.add(n, n_min_data[data_index]);
 		n_max.add(n, n_max_data[data_index]);
-		++data_index;
 	}
 
-	data_index = 0;
-	for (const auto& f : FOOD_data)
+	for (const auto& [data_index, f] : utils::Enumerate(FOOD_data) )
 	{
 		f_min.add(f, f_min_data[data_index]);
 		f_max.add(f, f_max_data[data_index]);
 		cost.add(f, cost_data[data_index]);
-		++data_index;
 	}
 
-	data_index = 0;
-	for (const auto& n : NUTR_data)
+	for (const auto& [data_index, n] : utils::Enumerate(NUTR_data))
 	{
-		int data_index2 = 0;
-		for (const auto& f : FOOD_data)
+		for (const auto& [data_index2, f] : utils::Enumerate(FOOD_data))
 		{
-			amt.add(n, f, amt_data[data_index][data_index2++]);
+			amt.add(n, f, amt_data[data_index][data_index2]);
 		}
-		++data_index;
 	}
 
 	m.seal_data();

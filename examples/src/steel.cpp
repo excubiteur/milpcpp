@@ -2,6 +2,8 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include<cassert>
 #include<iostream>
 
@@ -57,13 +59,11 @@ void steel(
 	for (const auto& p : PROD_data)
 		PROD::add(p);
 
-	int data_index = 0;
-	for (const auto& p : PROD_data)
+	for (const auto&[data_index, p] : utils::Enumerate(PROD_data))
 	{
 		rate.add(p, rate_data[data_index]);
 		profit.add(p, profit_data[data_index]);
 		market.add(p, market_data[data_index]);
-		++data_index;
 	}
 
 	avail = avail_data;

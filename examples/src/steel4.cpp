@@ -2,6 +2,8 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include<cassert>
 #include<iostream>
 
@@ -72,23 +74,19 @@ void steel4(
 	for (const auto& p : STAGE_data)
 		STAGE::add(p);
 
-	int data_index = 0;
-	for (const auto& p : PROD_data)
+	for (const auto&[data_index, p] : utils::Enumerate(PROD_data))
 	{
-		int data_index2 = 0;
-		for (const auto& s : STAGE_data)
+		for (const auto&[data_index2, s] : utils::Enumerate(STAGE_data))
 		{
-			rate.add(p, s, rate_data[data_index][data_index2++]);
+			rate.add(p, s, rate_data[data_index][data_index2]);
 		}
 		profit.add(p, profit_data[data_index]);
 		market.add(p, market_data[data_index]);
 		commit.add(p, commit_data[data_index]);
-		++data_index;
 	}
 
-	data_index = 0;
-	for (const auto& s : STAGE_data)
-		avail.add(s, avail_data[data_index++]);
+	for (const auto&[data_index, s] : utils::Enumerate(STAGE_data))
+		avail.add(s, avail_data[data_index]);
 
 
 	m.seal_data();
