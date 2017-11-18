@@ -1,6 +1,8 @@
 #include<milpcpp/lp_solve.h>
 #include<milpcpp/milpcpp.h>
 
+#include <milpcpp/EnumerateIterator.h>
+
 #include <lp_lib.h>
 
 #include<variant>
@@ -110,12 +112,10 @@ void lp_solve::solve()
 		int size = (int)sum._terms.size();
 		std::vector<int> indices(size);
 		std::vector<double> values(size);
-		int current_index = 0;
-		for (const auto&i : sum._terms)
+		for (const auto&[current_index, i] : utils::Enumerate(sum._terms))
 		{
 			indices[current_index] = ((int)(i.first + 1));
 			values[current_index] = (i.second._coefficient._value);
-			++current_index;
 		}
 		set_obj_fnex(_lp, size, &values[0], &indices[0]);
 	}
