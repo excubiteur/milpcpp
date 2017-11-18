@@ -68,18 +68,18 @@ void glpk::solve()
 		++current_row;
 
 		int type;
-		if (c._lower_bounded && c._upper_bounded)
+		if (c._lower_bound.has_value() && c._upper_bound.has_value())
 		{
 			if(c._lower_bound >= c._upper_bound)
 				type = GLP_FX;
 			else
 				type = GLP_DB;
 		}
-		else if (c._upper_bounded)
+		else if (c._upper_bound.has_value())
 		{
 			type = GLP_UP;
 		}
-		else if (c._lower_bounded)
+		else if (c._lower_bound.has_value())
 		{
 			type = GLP_LO;
 		}
@@ -93,8 +93,8 @@ void glpk::solve()
 		if (std::holds_alternative<expressions::sum>(e))
 		{
 			const auto&sum = std::get<expressions::sum>(e);
-			double lower = c._lower_bound - sum._constant_term._value;
-			double upper = c._upper_bound - sum._constant_term._value;
+			double lower = c._lower_bound.value_or(0) - sum._constant_term._value;
+			double upper = c._upper_bound.value_or(0) - sum._constant_term._value;
 			int size = (int)sum._terms.size();
 			std::vector<int> indices(size + 1);
 			std::vector<double> values(size + 1);
@@ -114,7 +114,7 @@ void glpk::solve()
 			std::vector<double> values(2);
 			indices[1] = (int)term._variable.absolute_index() + 1;
 			values[1] = term._coefficient._value;
-			glp_set_row_bnds(_lp, current_row, type, c._lower_bound, c._upper_bound);
+			glp_set_row_bnds(_lp, current_row, type, c._lower_bound.value(), c._upper_bound.value());
 			glp_set_mat_row(_lp, current_row, 1, &indices[0], &values[0]);
 		}
 		else if (std::holds_alternative<expressions::variable>(e))
@@ -124,7 +124,7 @@ void glpk::solve()
 			std::vector<double> values(2);
 			indices[1] = (int)var.absolute_index() + 1;
 			values[1] = 1;
-			glp_set_row_bnds(_lp, current_row, type, c._lower_bound, c._upper_bound);
+			glp_set_row_bnds(_lp, current_row, type, c._lower_bound.value(), c._upper_bound.value());
 			glp_set_mat_row(_lp, current_row, 1, &indices[0], &values[0]);
 		}
 		else

@@ -3,6 +3,7 @@
 
 #include<exception>
 #include<map>
+#include<optional>
 #include<string>
 #include<variant>
 
@@ -286,10 +287,8 @@ namespace milpcpp
 	struct constraint
 	{
 		expression _expression;
-		double _lower_bound = 0;
-		double _upper_bound = 0;
-		bool _lower_bounded = false;
-		bool _upper_bounded = false;
+		std::optional<double> _lower_bound;
+		std::optional<double> _upper_bound;
 	};
 
 	inline constraint null_constraint() { return constraint(); }
@@ -300,7 +299,6 @@ namespace milpcpp
 		{
 			constraint result;
 			result._expression = e;
-			result._upper_bounded = true;
 			result._upper_bound = value;
 			return result;
 		}
@@ -309,9 +307,7 @@ namespace milpcpp
 		{
 			constraint result;
 			result._expression = e;
-			result._upper_bounded = true;
 			result._upper_bound = value;
-			result._lower_bounded = true;
 			result._lower_bound = value;
 			return result;
 		}
@@ -320,9 +316,7 @@ namespace milpcpp
 		{
 			constraint result;
 			result._expression = sum - e;
-			result._upper_bounded = true;
 			result._upper_bound = 0;
-			result._lower_bounded = true;
 			result._lower_bound = 0;
 			return result;
 		}
@@ -330,7 +324,7 @@ namespace milpcpp
 		inline constraint upper_bound(const constraint&c, double value)
 		{
 			constraint result = c;
-			if (result._upper_bounded)
+			if (result._upper_bound.has_value() )
 			{
 				if (result._upper_bound > value)
 				{
@@ -339,7 +333,6 @@ namespace milpcpp
 			}
 			else
 			{
-				result._upper_bounded = true;
 				result._upper_bound = value;
 			}
 			return result;
@@ -349,7 +342,6 @@ namespace milpcpp
 		{
 			constraint result;
 			result._expression = e;
-			result._lower_bounded = true;
 			result._lower_bound = value;
 			return result;
 		}

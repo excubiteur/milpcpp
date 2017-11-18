@@ -59,8 +59,8 @@ void lp_solve::solve()
 		if (std::holds_alternative<expressions::sum>(e))
 		{
 			const auto&sum = std::get<expressions::sum>(e);
-			double lower = c._lower_bound - sum._constant_term._value;
-			double upper = c._upper_bound - sum._constant_term._value;
+			double lower = c._lower_bound.value_or(0) - sum._constant_term._value;
+			double upper = c._upper_bound.value_or(0) - sum._constant_term._value;
 			int size = (int)sum._terms.size();
 			std::vector<int> indices(size);
 			std::vector<double> values(size);
@@ -71,9 +71,9 @@ void lp_solve::solve()
 				values[current_index] = (i.second._coefficient._value);
 				++current_index;
 			}
-			if(c._lower_bounded)
+			if(c._lower_bound.has_value())
 				add_constraintex(_lp, size, &values[0], &indices[0], GE, lower);
-			if(c._upper_bounded)
+			if(c._upper_bound.has_value())
 				add_constraintex(_lp, size, &values[0], &indices[0], LE, upper);
 
 		}
@@ -82,20 +82,20 @@ void lp_solve::solve()
 			const auto&term = std::get<expressions::term>(e);
 			int index = (int)term._variable.absolute_index() + 1;
 			double value = term._coefficient._value;
-			if (c._lower_bounded)
-				add_constraintex(_lp, 1, &value, &index, GE, c._lower_bound);
-			if (c._upper_bounded)
-				add_constraintex(_lp, 1, &value, &index, LE, c._upper_bound);
+			if (c._lower_bound.has_value())
+				add_constraintex(_lp, 1, &value, &index, GE, c._lower_bound.value());
+			if (c._upper_bound.has_value())
+				add_constraintex(_lp, 1, &value, &index, LE, c._upper_bound.value());
 		}
 		else if (std::holds_alternative<expressions::variable>(e))
 		{
 			const auto&var = std::get<expressions::variable>(e);
 			int index = (int)var.absolute_index() + 1;
 			double value = 1;
-			if (c._lower_bounded)
-				add_constraintex(_lp, 1, &value, &index, GE, c._lower_bound);
-			if (c._upper_bounded)
-				add_constraintex(_lp, 1, &value, &index, LE, c._upper_bound);
+			if (c._lower_bound.has_value())
+				add_constraintex(_lp, 1, &value, &index, GE, c._lower_bound.value());
+			if (c._upper_bound.has_value())
+				add_constraintex(_lp, 1, &value, &index, LE, c._upper_bound.value());
 		}
 		else
 		{
