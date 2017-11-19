@@ -2,7 +2,7 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
-#include <milpcpp/EnumerateIterator.h>
+#include <milpcpp/enumerate.h>
 
 #include<cassert>
 #include<iostream>
@@ -58,7 +58,7 @@ void prod(
 	for(const auto& p: P_data)
 		P::add(p);
 
-	for (const auto&[data_index, p] : utils::Enumerate(P_data))
+	for (const auto&[data_index, p] : utils::enumerate(P_data))
 	{
 		a.add(p, a_data[data_index]);
 		c.add(p, c_data[data_index]);

@@ -4,7 +4,7 @@ project (examples)
 
 file(GLOB SRC src/*.cpp)
 
-include_directories( ../milpcpp/include )
+include_directories( ../milpcpp/include ${BOOST_DIR} ${RANGEV3_DIR}/include )
 
 if (MSVC_VERSION GREATER_EQUAL "1900")
     include(CheckCXXCompilerFlag)

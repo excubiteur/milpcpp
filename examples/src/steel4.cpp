@@ -2,7 +2,7 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
-#include <milpcpp/EnumerateIterator.h>
+#include <milpcpp/enumerate.h>
 
 #include<cassert>
 #include<iostream>
@@ -74,9 +74,9 @@ void steel4(
 	for (const auto& p : STAGE_data)
 		STAGE::add(p);
 
-	for (const auto&[data_index, p] : utils::Enumerate(PROD_data))
+	for (const auto&[data_index, p] : utils::enumerate(PROD_data))
 	{
-		for (const auto&[data_index2, s] : utils::Enumerate(STAGE_data))
+		for (const auto&[data_index2, s] : utils::enumerate(STAGE_data))
 		{
 			rate.add(p, s, rate_data[data_index][data_index2]);
 		}
@@ -85,7 +85,7 @@ void steel4(
 		commit.add(p, commit_data[data_index]);
 	}
 
-	for (const auto&[data_index, s] : utils::Enumerate(STAGE_data))
+	for (const auto&[data_index, s] : utils::enumerate(STAGE_data))
 		avail.add(s, avail_data[data_index]);
 
 

@@ -2,7 +2,7 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
-#include <milpcpp/EnumerateIterator.h>
+#include <milpcpp/enumerate.h>
 
 #include<cassert>
 #include<iostream>
@@ -68,19 +68,19 @@ void transp(
 	for (const auto& f :DEST_data)
 		DEST::add(f);
 
-	for (const auto&[data_index, o] : utils::Enumerate(ORIG_data))
+	for (const auto&[data_index, o] : utils::enumerate(ORIG_data))
 	{
 		supply.add(o, supply_data[data_index]);
 	}
 
-	for (const auto&[data_index, d] : utils::Enumerate(DEST_data))
+	for (const auto&[data_index, d] : utils::enumerate(DEST_data))
 	{
 		demand.add(d, demand_data[data_index]);
 	}
 
-	for (const auto&[data_index, o] : utils::Enumerate(ORIG_data))
+	for (const auto&[data_index, o] : utils::enumerate(ORIG_data))
 	{
-		for (const auto&[data_index2, d] : utils::Enumerate(DEST_data))
+		for (const auto&[data_index2, d] : utils::enumerate(DEST_data))
 		{
 			cost.add(o, d, cost_data[data_index][data_index2]);
 		}

@@ -1,7 +1,7 @@
 #include<milpcpp/glpk.h>
 #include<milpcpp/milpcpp.h>
 
-#include <milpcpp/EnumerateIterator.h>
+#include <milpcpp/enumerate.h>
 
 #include <glpk.h>
 
@@ -98,7 +98,7 @@ void glpk::solve()
 			int size = (int)sum._terms.size();
 			std::vector<int> indices(size + 1);
 			std::vector<double> values(size + 1);
-			for (const auto&[current_index, i] : utils::Enumerate(sum._terms))
+			for (const auto&[current_index, i] : utils::enumerate(sum._terms))
 			{
 				indices[current_index+1] = ((int)(i.first + 1));
 				values[current_index+1] = (i.second._coefficient._value);

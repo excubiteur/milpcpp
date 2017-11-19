@@ -6,7 +6,7 @@ file(GLOB SRC src/*.cpp)
 
 file(GLOB_RECURSE HEADER include/*.h)
 
-include_directories( include ${GLPK_DIR}/src  ${LPSOLVE_DIR})
+include_directories( include ${GLPK_DIR}/src  ${LPSOLVE_DIR}  ${RANGEV3_DIR}/include )
 
 if (MSVC_VERSION GREATER_EQUAL "1900")
     include(CheckCXXCompilerFlag)

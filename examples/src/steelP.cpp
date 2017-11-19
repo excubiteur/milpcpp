@@ -2,7 +2,7 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
-#include <milpcpp/EnumerateIterator.h>
+#include <milpcpp/enumerate.h>
 
 #include<cassert>
 #include<iostream>
@@ -85,30 +85,30 @@ void steelP(
 	for (const auto& p : PROD_data)
 		PROD::add(p);
 
-	for (const auto&[data_index, o] : utils::Enumerate(ORIG_data))
+	for (const auto&[data_index, o] : utils::enumerate(ORIG_data))
 	{
 		avail.add(o, avail_data[data_index]);
-		for (const auto&[data_index2, p] : utils::Enumerate(PROD_data))
+		for (const auto&[data_index2, p] : utils::enumerate(PROD_data))
 		{
 			rate.add(o, p, rate_data[data_index2][data_index]);
 			make_cost.add(o, p, make_cost_data[data_index2][data_index]);
 		}
 	}
 
-	for (const auto&[data_index, d] : utils::Enumerate(DEST_data))
+	for (const auto&[data_index, d] : utils::enumerate(DEST_data))
 	{
-		for (const auto&[data_index2, p] : utils::Enumerate(PROD_data))
+		for (const auto&[data_index2, p] : utils::enumerate(PROD_data))
 		{
 			demand.add(d, p, demand_data[data_index2][data_index]);
 		}
 	}
 
-	for (const auto&[data_index, o] : utils::Enumerate(ORIG_data))
+	for (const auto&[data_index, o] : utils::enumerate(ORIG_data))
 	{
-		for (const auto&[data_index2, d] : utils::Enumerate(DEST_data))
+		for (const auto&[data_index2, d] : utils::enumerate(DEST_data))
 		{
 			int data_index3 = 0;
-			for (const auto&[data_index3, p] : utils::Enumerate(PROD_data))
+			for (const auto&[data_index3, p] : utils::enumerate(PROD_data))
 			{
 				double value = trans_cost_data[data_index3][data_index][data_index2];
 				trans_cost.add(o, d, p, value);

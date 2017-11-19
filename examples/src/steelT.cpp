@@ -2,7 +2,7 @@
 #include <milpcpp/glpk.h>
 #include <milpcpp/lp_solve.h>
 
-#include <milpcpp/EnumerateIterator.h>
+#include <milpcpp/enumerate.h>
 
 #include<cassert>
 #include<iostream>
@@ -96,7 +96,7 @@ void steelT(
 
 	T::set_value(T_data);
 
-	for (const auto&[data_index, p] : utils::Enumerate(PROD_data))
+	for (const auto&[data_index, p] : utils::enumerate(PROD_data))
 	{
 		rate.add(p, rate_data[data_index]);
 		inv0.add(p, inv0_data[data_index]);
