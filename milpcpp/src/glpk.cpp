@@ -98,10 +98,18 @@ void glpk::solve()
 			int size = (int)sum._terms.size();
 			std::vector<int> indices(size + 1);
 			std::vector<double> values(size + 1);
-			for (const auto&[current_index, i] : utils::enumerate(sum._terms))
+
+			auto terms = // range/iterator of (variable index, coeffient) pairs
+				sum._terms | 
+				ranges::view::transform([](auto e) { 
+					return std::make_pair(e.first, e.second._coefficient._value);
+				});
+
+			for (const auto&[current_index, term ] : utils::enumerate(terms))
 			{
-				indices[current_index+1] = ((int)(i.first + 1));
-				values[current_index+1] = (i.second._coefficient._value);
+				const auto&[index, value] = term;
+				indices[current_index+1] = (int)index + 1;
+				values[current_index+1] = value;
 			}
 			glp_set_row_bnds(_lp, current_row , type, lower, upper);
 			glp_set_mat_row(_lp, current_row, size, &indices[0], &values[0]);

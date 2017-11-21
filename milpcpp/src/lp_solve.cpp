@@ -112,10 +112,18 @@ void lp_solve::solve()
 		int size = (int)sum._terms.size();
 		std::vector<int> indices(size);
 		std::vector<double> values(size);
-		for (const auto&[current_index, i] : utils::enumerate(sum._terms))
+
+		auto terms =  // range/iterator of (variable index, coeffient) pairs
+			sum._terms |
+			ranges::view::transform([](auto e) {
+				return std::make_pair(e.first, e.second._coefficient._value);
+		});
+
+		for (const auto&[current_index, term] : utils::enumerate(terms))
 		{
-			indices[current_index] = ((int)(i.first + 1));
-			values[current_index] = (i.second._coefficient._value);
+			const auto&[index, value] = term;
+			indices[current_index] = (int)index + 1;
+			values[current_index] = value;
 		}
 		set_obj_fnex(_lp, size, &values[0], &indices[0]);
 	}
