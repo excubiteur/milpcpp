@@ -123,3 +123,7 @@ Don't hesitate give comments, suggestions or ask for help compiling and running.
 Similar in spirit but pre-C++11: http://projects.coin-or.org/FlopC%2B%2B/browser/releases/1.1.2/FlopCpp/test/unitTest.cpp
 
 This one uses more or less the same approach as the Gurobi and CPLEX C++ interfaces: http://projects.coin-or.org/Rehearse
+
+## Python generator expressions
+
+After spending some time with the Python interfaces to Gurobi and glpk, I am tempted to go another direction. The python approach (based heavily on generator expressions) may be more suited for adaptation to C++ and C# than the AMPL approach. I have a hunch range-v3 and LINQ can be contorted to build something like generator expressions.
